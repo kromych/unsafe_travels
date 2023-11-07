@@ -1,0 +1,14 @@
+[package]
+name = "unsafe_travels"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+syn = { git = "https://github.com/kromych/syn", features = ["full", "visit", "span-locations"] }
+proc-macro2 = { version = "1", features = ["default"] }
+quote = "1"
+
+[workspace]
+members = [
+    "examples/find_unsafe_ranges",
+]
