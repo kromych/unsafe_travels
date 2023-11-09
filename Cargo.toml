@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-syn = { git = "https://github.com/kromych/syn", features = ["full", "visit", "span-locations"] }
-proc-macro2 = { version = "1", features = ["default"] }
-quote = "1"
+proc-macro2 = { version = "1", features = ["span-locations"] }
+syn = { version = "2", features = ["extra-traits", "full", "parsing", "visit"]}
 
 [workspace]
 members = [
