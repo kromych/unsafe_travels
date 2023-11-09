@@ -8,7 +8,9 @@ fn main() {
     match unsafe_travels::unsafe_ranges(&rust_code) {
         Ok(unsafe_ranges) => {
             // Print the unsafe ranges
-            println!("{:#?}", unsafe_ranges);
+            for range in unsafe_ranges.ranges {
+                println!("{range:?}");
+            }
         }
         Err(e) => {
             // Print the error
