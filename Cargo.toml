@@ -5,9 +5,10 @@ edition = "2021"
 
 [dependencies]
 proc-macro2 = { version = "1", features = ["span-locations"] }
-syn = { version = "2", features = ["extra-traits", "full", "parsing", "visit"]}
+syn = { version = "2", features = ["extra-traits", "full", "parsing", "printing", "visit"]}
 
 [workspace]
 members = [
     "examples/find_unsafe_ranges",
+    "examples/unsafe_example",
 ]

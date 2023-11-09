@@ -1,8 +1,20 @@
 //! An example of unsafe code
 
-fn main() {
-    let mut _u = 1;
+struct _S {
+    _a: u32,
+}
+
+unsafe impl Send for _S {}
+
+unsafe fn mute() {
+    let _u = 1;
     unsafe {
-        _u = std::mem::transmute(_u);
+        let _s: _S = std::mem::transmute(_u);
+    }
+}
+
+fn main() {
+    unsafe {
+        mute();
     }
 }

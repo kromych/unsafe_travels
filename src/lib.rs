@@ -1,4 +1,7 @@
 use proc_macro2::LineColumn;
+use syn::ItemImpl;
+use syn::ItemTrait;
+use syn::spanned::Spanned;
 use std::ops::Range;
 use syn::visit::Visit;
 use syn::Block;
@@ -8,29 +11,27 @@ use syn::ItemFn;
 /// Unsafe code ranges in a Rust file.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnsafeRanges {
-    pub blocks: Vec<Range<LineColumn>>,
-    pub fns: Vec<Range<LineColumn>>,
-    pub exprs: Vec<Range<LineColumn>>,
+    pub ranges: Vec<Range<LineColumn>>,
 }
 
 impl UnsafeRanges {
     fn new() -> Self {
         Self {
-            blocks: Vec::new(),
-            fns: Vec::new(),
-            exprs: Vec::new(),
+            ranges: Vec::new(),
         }
     }
 }
 
 impl<'ast> Visit<'ast> for UnsafeRanges {
     fn visit_block(&mut self, block: &'ast Block) {
-        // If the block is unsafe, print its span
+        // If the block is unsafe, add to the list.
         for stmt in &block.stmts {
             if let syn::Stmt::Item(syn::Item::Fn(item_fn)) = stmt {
-                if let Some(unsafe_token) = &item_fn.sig.unsafety {
-                    self.blocks
-                        .push(unsafe_token.span.start()..unsafe_token.span.end());
+                if item_fn.sig.unsafety.is_some() {
+                    let x = item_fn.span().start();
+                    let y = item_fn.span().end();
+                    self.ranges
+                        .push(x..y);
                 }
             }
         }
@@ -39,24 +40,53 @@ impl<'ast> Visit<'ast> for UnsafeRanges {
     }
 
     fn visit_item_fn(&mut self, i: &'ast ItemFn) {
-        // If the function is unsafe, print its span
-        if let Some(unsafe_token) = &i.sig.unsafety {
-            self.fns
-                .push(unsafe_token.span.start()..unsafe_token.span.end());
+        // If the function is unsafe, add to the list.
+        if i.sig.unsafety.is_some() {
+            let x = i.span().start();
+            let y = i.span().end();
+            self.ranges
+                .push(x..y);
         }
         // Continue walking the tree
         syn::visit::visit_item_fn(self, i);
     }
 
     fn visit_expr(&mut self, expr: &'ast Expr) {
-        // If the expression is unsafe, print its span
-        if let syn::Expr::Unsafe(expr_unsafe) = expr {
-            self.exprs
-                .push(expr_unsafe.unsafe_token.span.start()..expr_unsafe.unsafe_token.span.end());
+        // If the expression is unsafe, add to the list.
+        if let syn::Expr::Unsafe(expr_unsafe) = expr {            
+            let x = expr_unsafe.span().start();
+            let y = expr_unsafe.span().end();
+            self.ranges
+                .push(x..y);
         }
         // Continue walking the tree
         syn::visit::visit_expr(self, expr);
     }
+
+    fn visit_item_trait(&mut self, i: &'ast ItemTrait) {
+        // If the trait is unsafe, add to the list.
+        if i.unsafety.is_some() {
+            let x = i.span().start();
+            let y = i.span().end();
+            self.ranges
+                .push(x..y);
+        }
+        // Continue walking the tree
+        syn::visit::visit_item_trait(self, i);        
+    }
+
+    fn visit_item_impl(&mut self, i: &'ast ItemImpl) {
+        // If the trait is unsafe, add to the list.
+        if i.unsafety.is_some() {
+            let x = i.span().start();
+            let y = i.span().end();
+            self.ranges
+                .push(x..y);
+        }
+        // Continue walking the tree
+        syn::visit::visit_item_impl(self, i);
+    }
+
 }
 
 /// Returns unsafe code ranges in the given Rust code.
@@ -88,8 +118,8 @@ mod tests {
         "#;
 
         let unsafe_spans = unsafe_ranges(code).unwrap();
-        assert_eq!(unsafe_spans.exprs.len(), 1);
-        assert_eq!(unsafe_spans.exprs[0].start.line, 3);
-        assert_eq!(unsafe_spans.exprs[0].end.line, 3);
+        assert_eq!(unsafe_spans.ranges.len(), 1);
+        assert_eq!(unsafe_spans.ranges[0].start.line, 3);
+        assert_eq!(unsafe_spans.ranges[0].end.line, 5);
     }
 }
