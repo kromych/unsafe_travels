@@ -20,10 +20,4 @@ fn main() {
             );
         }
     }
-
-    // An example of unsafe code
-    let mut _u = 1;
-    unsafe {
-        _u = std::mem::transmute(_u);
-    }
 }

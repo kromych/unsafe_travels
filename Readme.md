@@ -7,5 +7,5 @@ the unsafe code regions were changed or introduced.
 For an example, run
 
 ```sh
-cargo r -p find_unsafe_ranges examples/find_unsafe_ranges/src/main.rs  
+cargo r -p find_unsafe_ranges examples/unsafe_example/src/main.rs
 ```
