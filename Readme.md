@@ -13,6 +13,8 @@ cargo r -p find_unsafe_ranges examples/unsafe_example/src/main.rs
 which produces for
 
 ```rust
+//! An example of unsafe code
+
 struct _S {
     _a: u32,
 }
